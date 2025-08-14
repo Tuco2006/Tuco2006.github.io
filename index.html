@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+    <header>
+        <h1> <i class="fa-brands"></i> Organizador de Tarefas </h1>
+    </header>
+
+    <!-- Formulário para criar nova task -->
+    <form id="postForm">
+        <i class="fa-solid fa-pen"></i> <label for="postText"> Digite a task:</label><br>
+        <textarea id="postText" rows="4" cols="50" placeholder="O que deseja fazer depois?"></textarea><br>
+        <i class="fa-solid fa-list"></i> <label for="postCategory">Categoria:</label>
+        <select id="postCategory">
+            <option value="Todos">Todos</option>
+            <option value="Machine Pay">MachinePay</option>
+            <option value="Pedidos">Pedidos</option>
+            <option value="Outros">Outros</option>
+        </select><br>
+        <i class="fa-solid fa-image"></i> <label for="postImage">Insira uma imagem (URL):</label><br>
+        <input type="text" id="postImage" placeholder="Insira a url aqui"><br>
+        <i class="fa-solid fa-list"></i> <label for="statusPost">Status:</label>
+        <select id="statusPost">
+            <option value="PENDENTE⏳">Pendente</option>
+            <option value="CONCLUÍDA✅">Concluída</option>
+        </select><br>
+        <button type="submit"><i class="fa-solid fa-bullhorn"></i> Adicionar task</button>
+    </form>
+
+    <h1>Tasks</h1>
+
+    <!-- Lista de posts -->
+    <div id="postList"></div>
+
+    <script src="script.js"></script>
+    <script src="https://kit.fontawesome.com/129b440489.js" crossorigin="anonymous"></script>
+</body>
+</html>
