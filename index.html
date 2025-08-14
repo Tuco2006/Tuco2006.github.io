@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizer</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/129b440489.js" crossorigin="anonymous"></script>
 </head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <body>
     <header>
-        <h1> <i class="fa-brands"></i> Organizador de Tarefas </h1>
+        <h1><i class="fa-brands"></i> Organizador de Tarefas</h1>
     </header>
 
     <!-- Formulário para criar nova task -->
     <form id="postForm">
-        <i class="fa-solid fa-pen"></i> <label for="postText"> Digite a task:</label><br>
+        <i class="fa-solid fa-pen"></i> <label for="postText">Digite a task:</label><br>
         <textarea id="postText" rows="4" cols="50" placeholder="O que deseja fazer depois?"></textarea><br>
+
         <i class="fa-solid fa-list"></i> <label for="postCategory">Categoria:</label>
         <select id="postCategory">
             <option value="Todos">Todos</option>
@@ -23,13 +24,16 @@
             <option value="Pedidos">Pedidos</option>
             <option value="Outros">Outros</option>
         </select><br>
+
         <i class="fa-solid fa-image"></i> <label for="postImage">Insira uma imagem (URL):</label><br>
         <input type="text" id="postImage" placeholder="Insira a url aqui"><br>
+
         <i class="fa-solid fa-list"></i> <label for="statusPost">Status:</label>
         <select id="statusPost">
-            <option value="PENDENTE⏳">Pendente</option>
-            <option value="CONCLUÍDA✅">Concluída</option>
+            <option value="PENDENTE⏳">Pendente ⏳</option>
+            <option value="CONCLUÍDA✅">Concluída ✅</option>
         </select><br>
+
         <button type="submit"><i class="fa-solid fa-bullhorn"></i> Adicionar task</button>
     </form>
 
@@ -38,7 +42,76 @@
     <!-- Lista de posts -->
     <div id="postList"></div>
 
-    <script src="script.js"></script>
-    <script src="https://kit.fontawesome.com/129b440489.js" crossorigin="anonymous"></script>
+    <!-- Firebase + Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        // 🔹 SEU firebaseConfig (substituir com seus dados reais)
+        const firebaseConfig = {
+            apiKey: "AZaSyB6X2y9gtMIiUHK0_vmBYp_WdGv-x8HXnc",
+            authDomain: "tasksmachinepay.firebaseapp.com",
+            databaseURL: "https://tasksmachinepay-default-rtdb.firebaseio.com",
+            projectId: "tasksmachinepay",
+            storageBucket: "tasksmachinepay.appspot.com",
+            messagingSenderId: "198790348949",
+            appId: "1:198790348949:web:292cb1292c39ceb86c9b9c",
+            measurementId: "G-MGG7VCPXDH"
+        };
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const postForm = document.getElementById("postForm");
+        const postList = document.getElementById("postList");
+
+        // Adicionar nova task
+        postForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const text = document.getElementById("postText").value.trim();
+            const category = document.getElementById("postCategory").value;
+            const image = document.getElementById("postImage").value.trim();
+            const status = document.getElementById("statusPost").value;
+
+            if (text) {
+                push(ref(db, "tasks"), {
+                    text,
+                    category,
+                    image,
+                    status,
+                    date: new Date().toLocaleString()
+                });
+
+                postForm.reset();
+            }
+        });
+
+        // Listar tasks em tempo real
+        onValue(ref(db, "tasks"), (snapshot) => {
+            postList.innerHTML = "";
+            snapshot.forEach((childSnapshot) => {
+                const task = childSnapshot.val();
+                const taskId = childSnapshot.key;
+
+                const taskDiv = document.createElement("div");
+                taskDiv.innerHTML = `
+                    <p><strong>${task.text}</strong> - <em>${task.category}</em></p>
+                    <p>Status: ${task.status}</p>
+                    ${task.image ? `<img src="${task.image}" style="max-width:200px;">` : ""}
+                    <p><small>${task.date}</small></p>
+                    <button onclick="deleteTask('${taskId}')">Excluir</button>
+                    <hr>
+                `;
+                postList.appendChild(taskDiv);
+            });
+        });
+
+        // Função para excluir task
+        window.deleteTask = (id) => {
+            remove(ref(db, "tasks/" + id));
+        };
+    </script>
 </body>
 </html>
