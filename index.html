@@ -30,24 +30,21 @@
 
         <i class="fa-solid fa-list"></i> <label for="statusPost">Status:</label>
         <select id="statusPost">
-            <option value="PENDENTE⏳">Pendente ⏳</option>
-            <option value="CONCLUÍDA✅">Concluída ✅</option>
+            <option value="⏳ Pendente">Pendente ⏳</option>
+            <option value="✅ Concluída">Concluída ✅</option>
         </select><br>
 
         <button type="submit"><i class="fa-solid fa-bullhorn"></i> Adicionar task</button>
     </form>
 
     <h1>Tasks</h1>
-
-    <!-- Lista de posts -->
     <div id="postList"></div>
 
     <!-- Firebase + Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-        // 🔹 SEU firebaseConfig (substituir com seus dados reais)
         const firebaseConfig = {
             apiKey: "AZaSyB6X2y9gtMIiUHK0_vmBYp_WdGv-x8HXnc",
             authDomain: "tasksmachinepay.firebaseapp.com",
@@ -59,7 +56,6 @@
             measurementId: "G-MGG7VCPXDH"
         };
 
-        // Inicializa Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -69,21 +65,13 @@
         // Adicionar nova task
         postForm.addEventListener("submit", (e) => {
             e.preventDefault();
-
             const text = document.getElementById("postText").value.trim();
             const category = document.getElementById("postCategory").value;
             const image = document.getElementById("postImage").value.trim();
             const status = document.getElementById("statusPost").value;
 
             if (text) {
-                push(ref(db, "tasks"), {
-                    text,
-                    category,
-                    image,
-                    status,
-                    date: new Date().toLocaleString()
-                });
-
+                push(ref(db, "tasks"), { text, category, image, status, date: new Date().toLocaleString() });
                 postForm.reset();
             }
         });
@@ -101,6 +89,7 @@
                     <p>Status: ${task.status}</p>
                     ${task.image ? `<img src="${task.image}" style="max-width:200px;">` : ""}
                     <p><small>${task.date}</small></p>
+                    <button onclick="editarPost('${taskId}', '${task.status}')">Editar</button>
                     <button onclick="deleteTask('${taskId}')">Excluir</button>
                     <hr>
                 `;
@@ -108,38 +97,29 @@
             });
         });
 
-        // Função para excluir task
-        window.deleteTask = (id) => {
-            remove(ref(db, "tasks/" + id));
-        };
+        // Excluir task
+        window.deleteTask = (id) => remove(ref(db, "tasks/" + id));
+
+        // Editar status da task
         window.editarPost = (id, statusAtual) => {
-        const select = document.createElement("select");
+            const select = document.createElement("select");
+            const opcaoPendente = document.createElement("option");
+            opcaoPendente.value = "⏳ Pendente"; opcaoPendente.textContent = "⏳ Pendente";
+            const opcaoConcluida = document.createElement("option");
+            opcaoConcluida.value = "✅ Concluída"; opcaoConcluida.textContent = "✅ Concluída";
+            select.appendChild(opcaoPendente); select.appendChild(opcaoConcluida);
+            select.value = statusAtual;
 
-        const opcaoPendente = document.createElement("option");
-        opcaoPendente.value = "⏳ Pendente";
-        opcaoPendente.textContent = "⏳ Pendente";
-
-        const opcaoConcluida = document.createElement("option");
-        opcaoConcluida.value = "✅ Concluída";
-        opcaoConcluida.textContent = "✅ Concluída";
-
-        select.appendChild(opcaoPendente);
-        select.appendChild(opcaoConcluida);
-
-        select.value = statusAtual;
-
-        const confirmacao = confirm("Quer mudar o status? Se sim, escolha na lista que aparecer.");
-        if (confirmacao) {
-            document.body.appendChild(select);
-            select.focus();
-
-            select.addEventListener("change", function () {
-                update(ref(db, "tasks/" + id), { status: select.value });
-                document.body.removeChild(select);
-            });
-        }
-    };
-
+            const confirmacao = confirm("Quer mudar o status? Se sim, escolha na lista que aparecer.");
+            if (confirmacao) {
+                document.body.appendChild(select);
+                select.focus();
+                select.addEventListener("change", function () {
+                    update(ref(db, "tasks/" + id), { status: select.value });
+                    document.body.removeChild(select);
+                });
+            }
+        };
     </script>
 </body>
 </html>
