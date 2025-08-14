@@ -112,6 +112,34 @@
         window.deleteTask = (id) => {
             remove(ref(db, "tasks/" + id));
         };
+        window.editarPost = (id, statusAtual) => {
+        const select = document.createElement("select");
+
+        const opcaoPendente = document.createElement("option");
+        opcaoPendente.value = "⏳ Pendente";
+        opcaoPendente.textContent = "⏳ Pendente";
+
+        const opcaoConcluida = document.createElement("option");
+        opcaoConcluida.value = "✅ Concluída";
+        opcaoConcluida.textContent = "✅ Concluída";
+
+        select.appendChild(opcaoPendente);
+        select.appendChild(opcaoConcluida);
+
+        select.value = statusAtual;
+
+        const confirmacao = confirm("Quer mudar o status? Se sim, escolha na lista que aparecer.");
+        if (confirmacao) {
+            document.body.appendChild(select);
+            select.focus();
+
+            select.addEventListener("change", function () {
+                update(ref(db, "tasks/" + id), { status: select.value });
+                document.body.removeChild(select);
+            });
+        }
+    };
+
     </script>
 </body>
 </html>
